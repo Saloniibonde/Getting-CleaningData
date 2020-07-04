@@ -1,0 +1,33 @@
+The steps can be explained as follows:
+> Firstly we convert the following txt files into Data Tables
+    features
+    activities 
+    subject_test 
+    x_test
+    y_test 
+    subject_train 
+    x_train 
+    y_train 
+    
+> We then merge the test and train data tables 
+        X <- rbind(x_train, x_test)
+        Y <- rbind(y_train, y_test)
+        Subject <- rbind(subject_train, subject_test)
+        
+> we extract the mean and std set
+        TidyData <- Merged_Data %>% select(subject, code, contains("mean"), contains("std"))
+
+> We assign activities name according to code
+        TidyData$code <- activities[TidyData$code, 2]
+> We change the labels using gsub and the data is grouped by subject&activity
+
+        names(TidyData)[2] = "activity"
+        names(TidyData)<-gsub("Acc", "Accelerometer", names(TidyData))
+        names(TidyData)<-gsub("Gyro", "Gyroscope", names(TidyData))
+        names(TidyData)<-gsub("BodyBody", "Body", names(TidyData))
+        names(TidyData)<-gsub("Mag", "Magnitude", names(TidyData))......so on
+        
+FinalData <- TidyData %>%
+    group_by(subject, activity) %>%
+    summarise_all(funs(mean))
+write.table(FinalData, "FinalData.txt", row.name=FALSE)
